@@ -13,13 +13,13 @@ app.post("/users", (req, res)=>{
         ({error: "nome e email são obrigatorios"})
     }
 
-    const user = UserService.addUser(nome, email);
+    const user = userService.addUser(nome, email);
     res.status(200).json({user});
 })
 
 //rota para listar todos os arquivos
 app.get("/users", (req, res)=>{
-    res.json(UserService.getUsers());
+    res.json(userService.getUsers());
 });
 
 const port = 3000;
