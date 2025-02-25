@@ -1,12 +1,13 @@
 const User = require("./user"); 
 const path = require('path'); //modulo para manipular caminhos
 const fs = require('fs'); //modulo para manipular arquivos file system
+const { json } = require("stream/consumers");
 
 class userService{
     constructor(){
         this.filePath = path.join(__dirname, 'user.json');
-        this.users = []; //array para armazenar user
-        this.nextId = 1; //contador para gerar id
+        this.users = this.loadUsers(); //array para armazenar user
+        this.nextId = this.getNextId(); //contador para gerar id
     }
 
     loadUsers(){
@@ -30,17 +31,36 @@ return [];
         }
     }
 
+    saveUsers(){
+        try{
+        fs.writeFileSync(this.filePath, JSON.stringify(this.users));
+    }catch (erro) {
+        console.log('erro ao salvar arquivo')
+    }
+        
+}
 
     
 
-    addUser(nome, email){
-        const user = new User(this.nextId++, nome, email);
-        this.users.push(user);
-        return user;
+    addUser(nome, email, senha, endereco, telefone, cpf){
+        try{ 
+        const user = new User(this.nextId++, nome, email, senha, endereco, telefone, cpf);
+         this.users.push(user); //adiciona o usuario
+         this.saveUsers(); //salva o usuario
+         return user;
+        } catch (erro) {
+            console.log('erro ao cadastrar o usuario');
+        }
+       
     }
 
     getUsers(){
+        try{
         return this.users
+    } catch (erro) {
+        console.log('erro ao chamar o usuario');
+    }
+        
     }
 }
 
