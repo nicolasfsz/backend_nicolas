@@ -6,14 +6,14 @@ app.use(express.json());
 
 //rota para criar usuario
 
-app.post("/users", (req, res)=>{
+app.post("/users", async (req, res)=>{
     const {nome, email, senha, endereco, telefone, cpf} = req.body;
     if(!nome || !email || !senha || !endereco || !telefone || !cpf){
         return res.status(400).json
         ({error: "nome e email são obrigatorios"})
     }
 
-    const user = userService.addUser(nome, email, senha, endereco, telefone, cpf);
+    const user = await userService.addUser(nome, email, senha, endereco, telefone, cpf);
     res.status(200).json({user});
 })
 //rota para excluir usuário
@@ -41,14 +41,14 @@ app.listen(port,() =>{
     console.log("Servidor rodando na porta:", port);
 })
 
-app.put("/users/:id", (req, res) => {
+app.put("/users/:id", async (req, res) => {
     const id = parseInt(req.params.id);
     const {nome, email, senha, endereco, telefone, cpf} = req.body;
     if(!nome || !email || !senha || !endereco || !telefone || !cpf){
         return res.status(400).json({error: "nome e email são obrigatorios"});
     }
     try {
-        const resultado = userService.putUser(id, nome, email, senha, endereco, telefone, cpf);
+        const resultado = await userService.putUser(id, nome, email, senha, endereco, telefone, cpf);
         res.status(200).json(resultado);
     } catch (erro) {
         res.status(404).json({error: erro.message});

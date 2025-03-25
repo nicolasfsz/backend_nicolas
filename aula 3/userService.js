@@ -2,6 +2,8 @@ const User = require("./user");
 const path = require('path'); //modulo para manipular caminhos
 const fs = require('fs'); //modulo para manipular arquivos file system
 const { json } = require("stream/consumers");
+const bcrypt = require('bcryptjs');
+
 
 class userService{
     constructor(){
@@ -42,9 +44,10 @@ return [];
 
     
 
-    addUser(nome, email, senha, endereco, telefone, cpf){
+    async addUser(nome, email, senha, endereco, telefone, cpf){
         try{ 
-        const user = new User(this.nextId++, nome, email, senha, endereco, telefone, cpf);
+        const senhaCripto = await bcrypt.hash(senha, 10);
+        const user = new User(this.nextId++, nome, email, senhaCripto, endereco, telefone, cpf);
          this.users.push(user); //adiciona o usuario
          this.saveUsers(); //salva o usuario
          return user;
@@ -72,11 +75,12 @@ return [];
         }
     }
 
-    putUser(id, nome, email, senha, endereco, telefone, cpf){
+    async putUser(id, nome, email, senha, endereco, telefone, cpf){
         try{
+            const senhaCripto = await bcrypt.hash(senha, 10);  
           const userIndex = this.users.findIndex(user => user.id === id);
           if(userIndex === -1) throw new Error('Usuário não encontrado');
-          this.users[userIndex] = new User(id, nome, email, senha, endereco, telefone, cpf);
+          this.users[userIndex] = new User(id, nome, email, senhaCripto, endereco, telefone, cpf);
           this.SaveUsers();
           return this.users[userIndex];
         }catch(erro){
