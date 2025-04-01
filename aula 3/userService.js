@@ -46,13 +46,18 @@ return [];
 
     async addUser(nome, email, senha, endereco, telefone, cpf){
         try{ 
+        const cpfunico = this.users.some(user => user.cpf === cpf); //verifica se o cpf ja existe
+        if(cpfunico) {
+            throw new Error('CPF já cadastrado');
+        } //se o cpf ja existe, retorna erro 
         const senhaCripto = await bcrypt.hash(senha, 10);
-        const user = new User(this.nextId++, nome, email, senhaCripto, endereco, telefone, cpf);
+        const user = new User(this.nextId++, nome, email, senhaCripto, endereco, telefone, cpf, cpfunico);
          this.users.push(user); //adiciona o usuario
          this.saveUsers(); //salva o usuario
          return user;
         } catch (erro) {
             console.log('erro ao cadastrar o usuario');
+            throw erro; //lança o erro para o controller
         }
        
     }

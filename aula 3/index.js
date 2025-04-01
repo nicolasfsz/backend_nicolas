@@ -7,15 +7,20 @@ app.use(express.json());
 //rota para criar usuario
 
 app.post("/users", async (req, res)=>{
+    try{
     const {nome, email, senha, endereco, telefone, cpf} = req.body;
     if(!nome || !email || !senha || !endereco || !telefone || !cpf){
         return res.status(400).json
         ({error: "nome e email são obrigatorios"})
     }
-
     const user = await userService.addUser(nome, email, senha, endereco, telefone, cpf);
     res.status(200).json({user});
+}catch(erro){
+    res.status(500).json({error: erro.message});
+}
 })
+
+
 //rota para excluir usuário
 app.delete("/users/:id", (req, res,) => {
     const id = parseInt(req.params.id);
