@@ -1,5 +1,5 @@
 const express = require("express");
-const userService = require ("./userservice");
+const userService = require ("./userService");
 
 const app = express();
 app.use(express.json());
@@ -14,7 +14,7 @@ app.post("/users", async (req, res)=>{
         ({error: "nome e email são obrigatorios"})
     }
     const user = await userService.addUser(nome, email, senha, endereco, telefone, cpf);
-    res.status(200).json({user});
+    res.status(200).json({mensagem: "usuario cadastrado com sucesso"});
 }catch(erro){
     res.status(500).json({error: erro.message});
 }

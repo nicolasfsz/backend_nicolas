@@ -2,7 +2,7 @@ const User = require("./user");
 const path = require('path'); //modulo para manipular caminhos
 const fs = require('fs'); //modulo para manipular arquivos file system
 const { json } = require("stream/consumers");
-const bcrypt = require('bcryptjs');
+const mysql = require("./mysql"); 
 
 
 class userService{
@@ -51,11 +51,15 @@ return [];
             throw new Error('CPF já cadastrado');
         } //se o cpf ja existe, retorna erro 
         const senhaCripto = await bcrypt.hash(senha, 10);
-        const user = new User(this.nextId++, nome, email, senhaCripto, endereco, telefone, cpf, cpfunico);
-         this.users.push(user); //adiciona o usuario
-         this.saveUsers(); //salva o usuario
-         return user;
-        } catch (erro) {
+       
+        const resultados = await mysql.execute(
+            `insert into usuarios (nome,email,endereco,telefone,senha,cpf)  
+            Values( ?, ?, ?, ?, ?, ?);`,
+            [nome, email, senhaCripto, endereco, telefone, cpf]
+        );
+        return resultados;
+        
+      } catch (erro) {
             console.log('erro ao cadastrar o usuario');
             throw erro; //lança o erro para o controller
         }
