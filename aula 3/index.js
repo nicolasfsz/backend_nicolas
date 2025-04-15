@@ -1,5 +1,5 @@
 const express = require("express");
-const userService = require ("./userService");
+const userService = require ("./userservice");
 
 const app = express();
 app.use(express.json());

@@ -3,6 +3,7 @@ const path = require('path'); //modulo para manipular caminhos
 const fs = require('fs'); //modulo para manipular arquivos file system
 const { json } = require("stream/consumers");
 const mysql = require("./mysql"); 
+const bcrypt = require('bcryptjs');
 
 
 class userService{
@@ -45,17 +46,13 @@ return [];
     
 
     async addUser(nome, email, senha, endereco, telefone, cpf){
-        try{ 
-        const cpfunico = this.users.some(user => user.cpf === cpf); //verifica se o cpf ja existe
-        if(cpfunico) {
-            throw new Error('CPF já cadastrado');
-        } //se o cpf ja existe, retorna erro 
+        try{  
         const senhaCripto = await bcrypt.hash(senha, 10);
        
         const resultados = await mysql.execute(
             `insert into usuarios (nome,email,endereco,telefone,senha,cpf)  
             Values( ?, ?, ?, ?, ?, ?);`,
-            [nome, email, senhaCripto, endereco, telefone, cpf]
+            [nome, email, endereco, telefone, senhaCripto , cpf]
         );
         return resultados;
         
@@ -84,17 +81,22 @@ return [];
         }
     }
 
-    async putUser(id, nome, email, senha, endereco, telefone, cpf){
-        try{
-            const senhaCripto = await bcrypt.hash(senha, 10);  
-          const userIndex = this.users.findIndex(user => user.id === id);
-          if(userIndex === -1) throw new Error('Usuário não encontrado');
-          this.users[userIndex] = new User(id, nome, email, senhaCripto, endereco, telefone, cpf);
-          this.SaveUsers();
-          return this.users[userIndex];
-        }catch(erro){
-          console.log('erro ao atualizar usuário', erro);
-
+    async putUser(id, nome, email, senha, endereco, telefone, cpf) {
+        try {
+                const senhaCripto = await bcrypt.hash(senha, 10);
+                const resultados = await mysql.execute(
+                `UPDATE usuarios
+                    SET nome        = ?, 
+                        email       = ?,
+                        endereco    = ?,
+                        telefone    = ?,
+                        senha       = ?,
+                        cpf         = ?
+                  WHERE idusuario   = ?;`,
+                [ nome, email, endereco, telefone, senhaCripto, cpf, id]);
+            return resultados;
+        } catch (erro) {
+            console.log('Erro na função putUser', erro);
     }
 }
 }
