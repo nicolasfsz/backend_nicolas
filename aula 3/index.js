@@ -22,13 +22,16 @@ app.post("/users", async (req, res)=>{
 
 
 //rota para excluir usuário
-app.delete("/users/:id", (req, res,) => {
+app.delete("/users/:id", async (req, res,) => {
     const id = parseInt(req.params.id);
 //converte o id para numero
 try {
-    const resultado = userService.deleteUser(id);
+    const resultado = await userService.deleteUser(id);
     //tenta excluir o usuaeio
-    res.status(200).json(resultado);
+    if (!resultado) {
+        return res.status(406).json({error: "usuario não encontrado"});
+    }
+     return res.status(200).json(resultado);
     //retorna a mensagem de sucesso
 }catch (erro) {
     res.status(404).json({error: erro.message});

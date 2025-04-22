@@ -4,11 +4,10 @@ const fs = require('fs'); //modulo para manipular arquivos file system
 const { json } = require("stream/consumers");
 const mysql = require("./mysql"); 
 const bcrypt = require('bcryptjs');
+const { get } = require("http");
 
 
 class userService{
-   
-
     async addUser(nome, email, senha, endereco, telefone, cpf){
         try{  
         const senhaCripto = await bcrypt.hash(senha, 10);
@@ -27,19 +26,31 @@ class userService{
        
     }
 
-    getUsers(){
+    async getUsers(id){
         try{
-        return this.users
+        const resultado = await mysql.execute(
+            `SELECT idusuario FROM usuarios WHERE idusuario = ?`,
+            {id}
+        );
+        return resultado; 
     } catch (erro) {
         console.log('erro ao chamar o usuario');
     }
         
     }
 
-    deleteUser(id){
+    async deleteUser(id){
         try{
-            this.users = this.users.filter(user => user.id !== id);
-            this.saveUsers();
+            const user = await this.getUsers(id);
+            if(user.length == 0) {
+                console.log ('Usuário não encontrado');
+                return;
+            }
+            const resultado = await mysql.execute(
+                `DELETE FROM usuarios WHERE idusuario = ?`,
+                [id]
+            );
+            return resultado;
         }catch(erro){
             console.log('Erro ao deletar usuário', erro)
         }
